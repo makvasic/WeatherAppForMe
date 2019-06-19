@@ -87,6 +87,7 @@ class MainRepository(private val webApi: WebApi) {
         7, 8, 11 -> R.drawable.weather_cloudy
         12, 13, 14, 18, 26, 39, 40 -> R.drawable.weather_rain
         15, 16, 17, 41, 42 -> R.drawable.weather_storm
+        19, 20, 21, 22, 23, 25, 43, 44 -> R.drawable.weather_snow
         33 -> R.drawable.weather_clear
         34, 35, 36, 37, 38 -> R.drawable.weather_clear_cloudy
         else -> R.mipmap.ic_launcher

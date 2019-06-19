@@ -15,9 +15,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         listPreference?.entryValues = arrayOf(
             AppCompatDelegate.MODE_NIGHT_NO.toString(),
             AppCompatDelegate.MODE_NIGHT_YES.toString(),
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+            AppCompatDelegate.MODE_NIGHT_AUTO_TIME.toString()
         )
-        listPreference?.setDefaultValue(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())
 
         listPreference?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { preference, newValue ->

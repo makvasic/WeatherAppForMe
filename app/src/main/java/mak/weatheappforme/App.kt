@@ -10,11 +10,16 @@ class App : Application() {
         super.onCreate()
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val mode = sharedPreferences.getString(
-            "theme_mode",
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
-        )?.toInt() ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 
-        AppCompatDelegate.setDefaultNightMode(mode)
+        var themeMode: String? = sharedPreferences.getString("theme_mode", null)
+
+        if (themeMode == null) {
+            themeMode = AppCompatDelegate.MODE_NIGHT_AUTO_TIME.toString()
+            sharedPreferences.edit()
+                .putString("theme_mode", themeMode)
+                .apply()
+        }
+
+        AppCompatDelegate.setDefaultNightMode(themeMode.toInt())
     }
 }
