@@ -1,5 +1,6 @@
 package mak.weatheappforme
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -8,35 +9,40 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val mainViewModel by lazy { ViewModelProviders.of(this).get(MainViewModel::class.java) }
+
+    private lateinit var preferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val adapter = HourlyForecastsAdapter()
+        preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        preferences.registerOnSharedPreferenceChangeListener(this)
 
-        recyclerView.adapter = adapter
+        mainViewModel.locationId = preferences.getString("location_id", WebApi.BELGRADE.toString())!!
 
-        mainViewModel.hourlyForecastsStateLiveData.observe(this, Observer {
-            hourlyForecastProgressBar.visibility = View.GONE
-            when (it) {
-                is HourlyForecastsState.Loading -> hourlyForecastProgressBar.visibility = View.VISIBLE
+        if (preferences.getBoolean("weather_hourly", true)) hourlyRecyclerView.visibility = View.VISIBLE
+        else hourlyRecyclerView.visibility = View.GONE
 
-                is HourlyForecastsState.Error -> Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+        if (preferences.getBoolean("weather_daily", true)) dailyRecyclerView.visibility = View.VISIBLE
+        else dailyRecyclerView.visibility = View.GONE
 
-                is HourlyForecastsState.Success -> adapter.submitList(it.hourlyForecastModels)
-            }
-        })
+        val hourlyAdapter = HourlyForecastsAdapter()
+        val dailyAdapter = DailyForecastsAdapter()
+
+        hourlyRecyclerView.adapter = hourlyAdapter
+        dailyRecyclerView.adapter = dailyAdapter
 
         mainViewModel.currentConditionStateLiveData.observe(this, Observer {
-            currentConditionProgressBar.visibility = View.GONE
+            //            currentConditionProgressBar.visibility = View.GONE
             when (it) {
-                is CurrentConditionState.Loading -> currentConditionProgressBar.visibility = View.VISIBLE
+//                is CurrentConditionState.Loading -> currentConditionProgressBar.visibility = View.VISIBLE
 
                 is CurrentConditionState.Error -> Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
 
@@ -45,6 +51,28 @@ class MainActivity : AppCompatActivity() {
                     weatherIconImageView.setImageResource(it.currentConditionModel.weatherIcon)
                     timeTextView.text = it.currentConditionModel.time
                 }
+            }
+        })
+
+        mainViewModel.hourlyForecastsStateLiveData.observe(this, Observer {
+            //            hourlyForecastProgressBar.visibility = View.GONE
+            when (it) {
+//                is HourlyForecastsState.Loading -> hourlyForecastProgressBar.visibility = View.VISIBLE
+
+                is HourlyForecastsState.Error -> Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+
+                is HourlyForecastsState.Success -> hourlyAdapter.submitList(it.hourlyForecastModels)
+            }
+        })
+
+        mainViewModel.dailyForecastsStateLiveData.observe(this, Observer {
+            //            dailyForecastProgressBar.visibility = View.GONE
+            when (it) {
+//                is DailyForecastsState.Loading -> dailyForecastProgressBar.visibility = View.VISIBLE
+
+                is DailyForecastsState.Error -> Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+
+                is DailyForecastsState.Success -> dailyAdapter.submitList(it.dailyForecastModels)
             }
         })
 
@@ -66,9 +94,42 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroy() {
+        preferences.unregisterOnSharedPreferenceChangeListener(this)
+        super.onDestroy()
+    }
+
+    override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String) {
+        when (key) {
+            "weather_hourly" ->
+                if (preferences.getBoolean(key, true)) {
+                    hourlyRecyclerView.visibility = View.VISIBLE
+                    mainViewModel.getHourlyForecasts(false)
+                } else hourlyRecyclerView.visibility = View.GONE
+
+            "weather_daily" ->
+                if (preferences.getBoolean(key, true)) {
+                    dailyRecyclerView.visibility = View.VISIBLE
+                    mainViewModel.getDailyForecasts(false)
+
+                } else dailyRecyclerView.visibility = View.GONE
+
+            "location_id" -> {
+                mainViewModel.locationId = preferences.getString(key, WebApi.BELGRADE.toString())!!
+                getForecast(false)
+            }
+
+        }
+    }
+
     private fun getForecast(cache: Boolean = true) {
 
-        mainViewModel.getHourlyForecasts(cache)
         mainViewModel.getCurrentCondition(cache)
+        if (preferences.getBoolean("weather_hourly", true)) {
+            mainViewModel.getHourlyForecasts(cache)
+        }
+        if (preferences.getBoolean("weather_daily", true)) {
+            mainViewModel.getDailyForecasts(cache)
+        }
     }
 }

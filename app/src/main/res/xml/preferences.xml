@@ -7,8 +7,34 @@
         <ListPreference
             app:entries="@array/theme_entries"
             app:key="theme_mode"
-            app:title="Change theme"
+            app:title="Theme"
             app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="location_category"
+        app:title="Location">
+
+        <ListPreference
+            app:entries="@array/location_entries"
+            app:entryValues="@array/location_values"
+            app:key="location_id"
+            app:title="Location"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="weather_category"
+        app:title="Weather">
+
+        <CheckBoxPreference
+            app:key="weather_hourly"
+            app:title="Hourly" />
+
+        <CheckBoxPreference
+            app:key="weather_daily"
+            app:title="Daily" />
+
     </PreferenceCategory>
 
 

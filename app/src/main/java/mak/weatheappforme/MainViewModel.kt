@@ -8,13 +8,27 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    private val mainRepository by lazy { MainRepository(WebApiFactory.webApi) }
+    var locationId = WebApi.BELGRADE.toString()
+
+    private val mainRepository = MainRepository(WebApiFactory.webApi, locationId)
+
+    private val _currentConditionStateLiveData = MutableLiveData<CurrentConditionState>()
+    val currentConditionStateLiveData: LiveData<CurrentConditionState> = _currentConditionStateLiveData
 
     private val _hourlyForecastsStateLiveData = MutableLiveData<HourlyForecastsState>()
     val hourlyForecastsStateLiveData: LiveData<HourlyForecastsState> = _hourlyForecastsStateLiveData
 
-    private val _currentConditionStateLiveData = MutableLiveData<CurrentConditionState>()
-    val currentConditionStateLiveData: LiveData<CurrentConditionState> = _currentConditionStateLiveData
+    private val _dailyForecastsStateLiveData = MutableLiveData<DailyForecastsState>()
+    val dailyForecastsStateLiveData: LiveData<DailyForecastsState> = _dailyForecastsStateLiveData
+
+    fun getCurrentCondition(cache: Boolean) {
+        if (_currentConditionStateLiveData.value != null && cache) return
+
+        _currentConditionStateLiveData.value = CurrentConditionState.Loading
+        viewModelScope.launch {
+            _currentConditionStateLiveData.value = mainRepository.getCurrentConditionState()
+        }
+    }
 
     fun getHourlyForecasts(cache: Boolean) {
         if (_hourlyForecastsStateLiveData.value != null && cache) return
@@ -25,12 +39,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun getCurrentCondition(cache: Boolean) {
-        if (_currentConditionStateLiveData.value != null && cache) return
+    fun getDailyForecasts(cache: Boolean) {
+        if (_dailyForecastsStateLiveData.value != null && cache) return
 
-        _currentConditionStateLiveData.value = CurrentConditionState.Loading
+        _dailyForecastsStateLiveData.value = DailyForecastsState.Loading
         viewModelScope.launch {
-            _currentConditionStateLiveData.value = mainRepository.getCurrentConditionState()
+            _dailyForecastsStateLiveData.value = mainRepository.getDailyForecastsState()
         }
     }
+
+
 }

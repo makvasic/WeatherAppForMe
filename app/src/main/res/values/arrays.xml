@@ -5,4 +5,14 @@
         <item>Dark</item>
         <item>Auto</item>
     </string-array>
+
+    <string-array name="location_entries">
+        <item>Belgrade</item>
+        <item>Győr</item>
+    </string-array>
+
+    <string-array name="location_values">
+        <item>298198</item>
+        <item>188380</item>
+    </string-array>
 </resources>

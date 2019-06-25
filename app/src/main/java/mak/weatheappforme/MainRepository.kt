@@ -4,14 +4,49 @@ import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
-class MainRepository(private val webApi: WebApi) {
+class MainRepository(private val webApi: WebApi, private val locationId: String) {
+
+    suspend fun getCurrentConditionState(): CurrentConditionState {
+        val currentConditions = try {
+            webApi.getCurrentCondition(locationId)
+        } catch (e: Throwable) {
+            return when (e) {
+                is ConnectException,
+                is SocketTimeoutException,
+                is UnknownHostException -> {
+                    CurrentConditionState.Error("Check your internet connection")
+                }
+                is HttpException -> {
+                    if (e.code() == 503) {
+                        CurrentConditionState.Error("The allowed number of requests has been exceeded.")
+                    } else {
+                        CurrentConditionState.Error("#${e.code()} ${e.message()}")
+                    }
+                }
+                else -> CurrentConditionState.Error("Unknown error")
+            }
+        }
+
+        val currentCondition = currentConditions[0]
+
+        val currentConditionModel = CurrentConditionModel(
+            "${currentCondition.temperature.metric.value.roundToInt()}\u00B0",
+            getWeatherIcon(currentCondition.weatherIcon),
+            getTime(currentCondition.dateTime)
+        )
+
+        return CurrentConditionState.Success(currentConditionModel)
+    }
 
     suspend fun getHourlyForecastsState(): HourlyForecastsState {
 
         val hourlyForecasts = try {
-            webApi.getHourlyForecasts()
+            webApi.getHourlyForecasts(locationId)
         } catch (e: Exception) {
             return when (e) {
                 is ConnectException,
@@ -48,36 +83,44 @@ class MainRepository(private val webApi: WebApi) {
         return HourlyForecastsState.Success(hourlyForecastModels)
     }
 
-    suspend fun getCurrentConditionState(): CurrentConditionState {
-        val currentConditions = try {
-            webApi.getCurrentCondition()
-        } catch (e: Throwable) {
+    suspend fun getDailyForecastsState(): DailyForecastsState {
+
+        val dailyForecastsWrapper = try {
+            webApi.getDailyForecasts(locationId)
+        } catch (e: Exception) {
             return when (e) {
                 is ConnectException,
                 is SocketTimeoutException,
                 is UnknownHostException -> {
-                    CurrentConditionState.Error("Check your internet connection")
+                    DailyForecastsState.Error("Check your internet connection")
                 }
                 is HttpException -> {
                     if (e.code() == 503) {
-                        CurrentConditionState.Error("The allowed number of requests has been exceeded.")
+                        DailyForecastsState.Error("The allowed number of requests has been exceeded.")
                     } else {
-                        CurrentConditionState.Error("#${e.code()} ${e.message()}")
+                        DailyForecastsState.Error("#${e.code()} ${e.message()}")
                     }
                 }
-                else -> CurrentConditionState.Error("Unknown error")
+                else -> DailyForecastsState.Error("Unknown error")
+
             }
         }
 
-        val currentCondition = currentConditions[0]
+        val dailyForecastModels = ArrayList<DailyForecastModel>()
 
-        val currentConditionModel = CurrentConditionModel(
-            "${currentCondition.temperature.metric.value.roundToInt()}\u00B0",
-            getWeatherIcon(currentCondition.weatherIcon),
-            getTime(currentCondition.dateTime)
-        )
+        dailyForecastsWrapper.dailyForecasts.forEach {
+            dailyForecastModels.add(
+                DailyForecastModel(
+                    "${it.temperature.minimum.value.roundToInt()}°/${it.temperature.maximum.value.roundToInt()}°",
+                    getWeatherIcon(it.day.icon),
+                    getWeatherIcon(it.night.icon),
+                    getDate(it.epochDateTime)
 
-        return CurrentConditionState.Success(currentConditionModel)
+                )
+            )
+        }
+
+        return DailyForecastsState.Success(dailyForecastModels)
     }
 
 
@@ -91,6 +134,12 @@ class MainRepository(private val webApi: WebApi) {
         33 -> R.drawable.weather_clear
         34, 35, 36, 37, 38 -> R.drawable.weather_clear_cloudy
         else -> R.mipmap.ic_launcher
+    }
+
+    private fun getDate(epoch: Long): String {
+        val simpleDateFormat = SimpleDateFormat("dd.MM.", Locale.getDefault())
+
+        return simpleDateFormat.format(Date(epoch * 1000L))
     }
 
     private fun getTime(timestamp: String): String {

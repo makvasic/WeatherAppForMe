@@ -17,6 +17,9 @@ class App : Application() {
             themeMode = AppCompatDelegate.MODE_NIGHT_AUTO_TIME.toString()
             sharedPreferences.edit()
                 .putString("theme_mode", themeMode)
+                .putString("location_id", WebApi.BELGRADE.toString())
+                .putBoolean("weather_hourly", true)
+                .putBoolean("weather_daily", true)
                 .apply()
         }
 
