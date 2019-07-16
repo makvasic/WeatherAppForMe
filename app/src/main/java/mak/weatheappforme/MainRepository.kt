@@ -47,18 +47,18 @@ class MainRepository(private val webApi: WebApi, private val locationId: String)
 
         val hourlyForecasts = try {
             webApi.getHourlyForecasts(locationId)
-        } catch (e: Exception) {
-            return when (e) {
+        } catch (t: Throwable) {
+            return when (t) {
                 is ConnectException,
                 is SocketTimeoutException,
                 is UnknownHostException -> {
                     HourlyForecastsState.Error("Check your internet connection")
                 }
                 is HttpException -> {
-                    if (e.code() == 503) {
+                    if (t.code() == 503) {
                         HourlyForecastsState.Error("The allowed number of requests has been exceeded.")
                     } else {
-                        HourlyForecastsState.Error("#${e.code()} ${e.message()}")
+                        HourlyForecastsState.Error("#${t.code()} ${t.message()}")
                     }
                 }
                 else -> HourlyForecastsState.Error("Unknown error")
