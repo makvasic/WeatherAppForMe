@@ -18,5 +18,7 @@ interface WebApi {
     companion object {
         const val BELGRADE = 298198
         const val GYOR = 188380
+        const val HERCEG_NOVI = 298280
+        const val OHRID = 298280
     }
 }

@@ -8,9 +8,7 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    var locationId = WebApi.BELGRADE.toString()
-
-    private val mainRepository = MainRepository(WebApiFactory.webApi, locationId)
+    private val mainRepository = MainRepository(WebApiFactory.webApi)
 
     private val _currentConditionStateLiveData = MutableLiveData<CurrentConditionState>()
     val currentConditionStateLiveData: LiveData<CurrentConditionState> = _currentConditionStateLiveData
@@ -26,7 +24,8 @@ class MainViewModel : ViewModel() {
 
         _currentConditionStateLiveData.value = CurrentConditionState.Loading
         viewModelScope.launch {
-            _currentConditionStateLiveData.value = mainRepository.getCurrentConditionState()
+            _currentConditionStateLiveData.value =
+                mainRepository.getCurrentConditionState(locationId)
         }
     }
 
@@ -35,7 +34,7 @@ class MainViewModel : ViewModel() {
 
         _hourlyForecastsStateLiveData.value = HourlyForecastsState.Loading
         viewModelScope.launch {
-            _hourlyForecastsStateLiveData.value = mainRepository.getHourlyForecastsState()
+            _hourlyForecastsStateLiveData.value = mainRepository.getHourlyForecastsState(locationId)
         }
     }
 
@@ -44,9 +43,13 @@ class MainViewModel : ViewModel() {
 
         _dailyForecastsStateLiveData.value = DailyForecastsState.Loading
         viewModelScope.launch {
-            _dailyForecastsStateLiveData.value = mainRepository.getDailyForecastsState()
+            _dailyForecastsStateLiveData.value = mainRepository.getDailyForecastsState(locationId)
         }
     }
 
 
+    companion object {
+        var locationId = ""
+        var locationName = ""
+    }
 }

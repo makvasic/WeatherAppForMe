@@ -9,10 +9,14 @@
     <string-array name="location_entries">
         <item>Belgrade</item>
         <item>Győr</item>
+        <item>Herceg Novi</item>
+        <item>Ohrid</item>
     </string-array>
 
     <string-array name="location_values">
         <item>298198</item>
         <item>188380</item>
+        <item>298280</item>
+        <item>1172</item>
     </string-array>
 </resources>

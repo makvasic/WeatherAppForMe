@@ -25,12 +25,20 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
         preferences.registerOnSharedPreferenceChangeListener(this)
 
-        mainViewModel.locationId = preferences.getString("location_id", WebApi.BELGRADE.toString())!!
+        MainViewModel.locationId =
+            preferences.getString("location_id", WebApi.BELGRADE.toString())!!
 
-        if (preferences.getBoolean("weather_hourly", true)) hourlyRecyclerView.visibility = View.VISIBLE
+        MainViewModel.locationName = getLocationNameFromId(MainViewModel.locationId)
+
+        supportActionBar?.title = MainViewModel.locationName
+
+
+        if (preferences.getBoolean("weather_hourly", true)) hourlyRecyclerView.visibility =
+            View.VISIBLE
         else hourlyRecyclerView.visibility = View.GONE
 
-        if (preferences.getBoolean("weather_daily", true)) dailyRecyclerView.visibility = View.VISIBLE
+        if (preferences.getBoolean("weather_daily", true)) dailyRecyclerView.visibility =
+            View.VISIBLE
         else dailyRecyclerView.visibility = View.GONE
 
         val hourlyAdapter = HourlyForecastsAdapter()
@@ -40,11 +48,15 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         dailyRecyclerView.adapter = dailyAdapter
 
         mainViewModel.currentConditionStateLiveData.observe(this, Observer {
-            //            currentConditionProgressBar.visibility = View.GONE
+            // currentConditionProgressBar.visibility = View.GONE
             when (it) {
 //                is CurrentConditionState.Loading -> currentConditionProgressBar.visibility = View.VISIBLE
 
-                is CurrentConditionState.Error -> Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                is CurrentConditionState.Error -> Toast.makeText(
+                    this,
+                    it.message,
+                    Toast.LENGTH_LONG
+                ).show()
 
                 is CurrentConditionState.Success -> {
                     temperatureTextView.text = it.currentConditionModel.temperature
@@ -59,7 +71,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             when (it) {
 //                is HourlyForecastsState.Loading -> hourlyForecastProgressBar.visibility = View.VISIBLE
 
-                is HourlyForecastsState.Error -> Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                is HourlyForecastsState.Error -> Toast.makeText(
+                    this,
+                    it.message,
+                    Toast.LENGTH_LONG
+                ).show()
 
                 is HourlyForecastsState.Success -> hourlyAdapter.submitList(it.hourlyForecastModels)
             }
@@ -70,7 +86,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             when (it) {
 //                is DailyForecastsState.Loading -> dailyForecastProgressBar.visibility = View.VISIBLE
 
-                is DailyForecastsState.Error -> Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                is DailyForecastsState.Error -> Toast.makeText(
+                    this,
+                    it.message,
+                    Toast.LENGTH_LONG
+                ).show()
 
                 is DailyForecastsState.Success -> dailyAdapter.submitList(it.dailyForecastModels)
             }
@@ -78,6 +98,18 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         getForecast()
 
+    }
+
+    private fun getLocationNameFromId(locationId: String): String {
+        val locationIds = resources.getStringArray(R.array.location_values)
+        val locationNames = resources.getStringArray(R.array.location_entries)
+
+        locationIds.forEachIndexed { index, id ->
+            if (id == locationId) {
+                return locationNames[index]
+            }
+        }
+        return locationNames[0]
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -115,7 +147,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 } else dailyRecyclerView.visibility = View.GONE
 
             "location_id" -> {
-                mainViewModel.locationId = preferences.getString(key, WebApi.BELGRADE.toString())!!
+                MainViewModel.locationId = preferences.getString(key, WebApi.BELGRADE.toString())!!
+                MainViewModel.locationName = getLocationNameFromId(MainViewModel.locationId)
                 getForecast(false)
             }
 
@@ -123,6 +156,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     }
 
     private fun getForecast(cache: Boolean = true) {
+
+        supportActionBar?.title = MainViewModel.locationName
 
         mainViewModel.getCurrentCondition(cache)
         if (preferences.getBoolean("weather_hourly", true)) {

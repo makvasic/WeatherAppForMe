@@ -9,9 +9,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
-class MainRepository(private val webApi: WebApi, private val locationId: String) {
+class MainRepository(private val webApi: WebApi) {
 
-    suspend fun getCurrentConditionState(): CurrentConditionState {
+    suspend fun getCurrentConditionState(locationId: String): CurrentConditionState {
         val currentConditions = try {
             webApi.getCurrentCondition(locationId)
         } catch (e: Throwable) {
@@ -43,7 +43,7 @@ class MainRepository(private val webApi: WebApi, private val locationId: String)
         return CurrentConditionState.Success(currentConditionModel)
     }
 
-    suspend fun getHourlyForecastsState(): HourlyForecastsState {
+    suspend fun getHourlyForecastsState(locationId: String): HourlyForecastsState {
 
         val hourlyForecasts = try {
             webApi.getHourlyForecasts(locationId)
@@ -83,7 +83,7 @@ class MainRepository(private val webApi: WebApi, private val locationId: String)
         return HourlyForecastsState.Success(hourlyForecastModels)
     }
 
-    suspend fun getDailyForecastsState(): DailyForecastsState {
+    suspend fun getDailyForecastsState(locationId: String): DailyForecastsState {
 
         val dailyForecastsWrapper = try {
             webApi.getDailyForecasts(locationId)
