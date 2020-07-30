@@ -1,31 +1,34 @@
 package mak.weatheappforme
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class HourlyForecast(
 
-    @field:Json(name = "DateTime")
+    @Json(name = "DateTime")
     val dateTime: String = "2019-06-04T15:00:00+02:00",
-    @field:Json(name = "EpochDateTime")
+    @Json(name = "EpochDateTime")
     val epochDateTime: Long = 1559653200,
-    @field:Json(name = "WeatherIcon")
+    @Json(name = "WeatherIcon")
     val weatherIcon: Int = 7,
-    @field:Json(name = "IconPhrase")
+    @Json(name = "IconPhrase")
     val iconPhrase: String = "Cloudy",
-    @field:Json(name = "HasPrecipitation")
+    @Json(name = "HasPrecipitation")
     val precipitation: Boolean = false,
-    @field:Json(name = "IsDaylight")
+    @Json(name = "IsDaylight")
     val daylight: Boolean = true,
-    @field:Json(name = "Temperature")
+    @Json(name = "Temperature")
     val temperature: Temperature = Temperature(),
-    @field:Json(name = "PrecipitationProbability")
+    @Json(name = "PrecipitationProbability")
     val precipitationProbability: Int = 50
 ) {
 
+    @JsonClass(generateAdapter = true)
     data class Temperature(
-        @field:Json(name = "Value") val value: Float = 30f,
-        @field:Json(name = "Unit") val unit: String = "C",
-        @field:Json(name = "UnitType") val unitType: Int = 17
+        @Json(name = "Value") val value: Float = 30f,
+        @Json(name = "Unit") val unit: String = "C",
+        @Json(name = "UnitType") val unitType: Int = 17
     )
 }
 

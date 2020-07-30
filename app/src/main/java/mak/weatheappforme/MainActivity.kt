@@ -8,13 +8,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private val mainViewModel by lazy { ViewModelProviders.of(this).get(MainViewModel::class.java) }
+    private val mainViewModel by lazy { ViewModelProvider(this).get(MainViewModel::class.java) }
 
     private lateinit var preferences: SharedPreferences
 

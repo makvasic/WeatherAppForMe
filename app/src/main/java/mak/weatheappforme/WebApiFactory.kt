@@ -1,6 +1,5 @@
 package mak.weatheappforme
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -32,7 +31,6 @@ object WebApiFactory {
     private val retrofit = Retrofit.Builder()
         .client(client)
         .baseUrl(BASE_URL)
-        .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
 

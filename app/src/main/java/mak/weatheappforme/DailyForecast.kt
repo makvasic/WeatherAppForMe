@@ -1,44 +1,51 @@
 package mak.weatheappforme
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class DailyForecast(
 
-    @field:Json(name = "Date")
+    @Json(name = "Date")
     val dateTime: String = "2019-06-04T15:00:00+02:00",
-    @field:Json(name = "EpochDate")
+    @Json(name = "EpochDate")
     val epochDateTime: Long = 1559653200,
-    @field:Json(name = "Temperature")
+    @Json(name = "Temperature")
     val temperature: Temperature = Temperature(),
-    @field:Json(name = "Day")
+    @Json(name = "Day")
     val day: Day = Day(),
-    @field:Json(name = "Night")
+    @Json(name = "Night")
     val night: Night = Night()
 ) {
 
+    @JsonClass(generateAdapter = true)
     data class Temperature(
-        @field:Json(name = "Minimum") val minimum: Minimum = Minimum(),
-        @field:Json(name = "Maximum") val maximum: Maximum = Maximum()
+        @Json(name = "Minimum") val minimum: Minimum = Minimum(),
+        @Json(name = "Maximum") val maximum: Maximum = Maximum()
 
     ) {
+        @JsonClass(generateAdapter = true)
         data class Minimum(
-            @field:Json(name = "Value") val value: Float = 30f,
-            @field:Json(name = "Unit") val unit: String = "C",
-            @field:Json(name = "UnitType") val unitType: Int = 17
+            @Json(name = "Value") val value: Float = 30f,
+            @Json(name = "Unit") val unit: String = "C",
+            @Json(name = "UnitType") val unitType: Int = 17
         )
 
+        @JsonClass(generateAdapter = true)
         data class Maximum(
-            @field:Json(name = "Value") val value: Float = 30f,
-            @field:Json(name = "Unit") val unit: String = "C",
-            @field:Json(name = "UnitType") val unitType: Int = 17
+            @Json(name = "Value") val value: Float = 30f,
+            @Json(name = "Unit") val unit: String = "C",
+            @Json(name = "UnitType") val unitType: Int = 17
         )
     }
 
+    @JsonClass(generateAdapter = true)
     data class Day(
-        @field:Json(name = "Icon") val icon: Int = 17
+        @Json(name = "Icon") val icon: Int = 17
     )
 
+    @JsonClass(generateAdapter = true)
     data class Night(
-        @field:Json(name = "Icon") val icon: Int = 17
+        @Json(name = "Icon") val icon: Int = 17
     )
 }

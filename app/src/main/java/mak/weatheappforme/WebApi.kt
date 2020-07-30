@@ -20,5 +20,6 @@ interface WebApi {
         const val GYOR = 188380
         const val HERCEG_NOVI = 298280
         const val OHRID = 1172
+        const val KRAGUJEVAC = 301638
     }
 }

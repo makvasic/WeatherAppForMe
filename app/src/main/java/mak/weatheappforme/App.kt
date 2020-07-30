@@ -19,7 +19,7 @@ class App : Application() {
                 .putString("theme_mode", themeMode)
                 .putString("location_id", WebApi.BELGRADE.toString())
                 .putBoolean("weather_hourly", true)
-                .putBoolean("weather_daily", true)
+                .putBoolean("weather_daily", false)
                 .apply()
         }
 
